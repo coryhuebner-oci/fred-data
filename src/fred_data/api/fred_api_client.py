@@ -1,5 +1,3 @@
-from functools import reduce
-from os import path
 from urllib3 import BaseHTTPResponse, PoolManager
 
 from fred_data.api.url_builders import get_url

@@ -16,6 +16,7 @@ class Releases:
 
 def get_releases(
     api_client: FredApiClient,
+    *,
     realtime_start: date | None = None,
     realtime_end: date | None = None,
     limit: int | None = None,
@@ -37,9 +38,12 @@ def get_releases(
         )
     releases_json = releases_response.json()
 
+    releases_df = pl.from_dicts(releases_json["releases"]).with_columns(
+        pl.col("realtime_start", "realtime_end").str.to_date(),
+    )
     return Releases(
         realtime_start=date.fromisoformat(releases_json["realtime_start"]),
         realtime_end=date.fromisoformat(releases_json["realtime_end"]),
         count=releases_json["count"],
-        releases=pl.from_dicts(releases_json["releases"]),
+        releases=releases_df,
     )
