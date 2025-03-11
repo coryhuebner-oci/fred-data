@@ -1,3 +1,4 @@
+from datetime import date
 import pytest
 
 
@@ -17,38 +18,19 @@ def monkey_patch_env(monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "input",
-    [
-        ("https://wombatsinbusinesssuits.com?file_type=xml"),
-        ("https://wombatsinbusinesssuits.com/?file_type=json"),
-        (
-            "https://wombatsinbusinesssuits.com?now=withqs&file_type=json&params=exclamationpoint"
-        ),
-    ],
-)
-def get_url_leaves_complete_urls_untouched(input, monkey_patch_env):
-    monkey_patch_env(_api_key_env_var)
-    assert get_url(input) == input
-
-
-@pytest.mark.parametrize(
     "input, output",
     [
         (
-            "https://wombatsinbusinesssuits.com?api_key=<apiKey>&file_type=json",
+            "https://wombatsinbusinesssuits.com",
             f"https://wombatsinbusinesssuits.com?api_key={_api_key}&file_type=json",
         ),
         (
-            "https://wombatsinbusinesssuits.com/?api_key=<apiKey>&file_type=xml",
-            f"https://wombatsinbusinesssuits.com/?api_key={_api_key}&file_type=xml",
-        ),
-        (
-            "https://wombatsinbusinesssuits.com?now=withqs&api_key=<apiKey>&file_type=json&params=exclamationpoint",
-            f"https://wombatsinbusinesssuits.com?now=withqs&api_key={_api_key}&file_type=json&params=exclamationpoint",
+            "https://wombatsinbusinesssuits.com/",
+            f"https://wombatsinbusinesssuits.com/?api_key={_api_key}&file_type=json",
         ),
     ],
 )
-def test_get_url_replaces_api_key(input, output, monkey_patch_env):
+def test_get_url_sets_api_key(input, output, monkey_patch_env):
     monkey_patch_env(_api_key_env_var)
     assert get_url(input) == output
 
@@ -57,16 +39,12 @@ def test_get_url_replaces_api_key(input, output, monkey_patch_env):
     "input, output",
     [
         (
-            "https://wombatsinbusinesssuits.com?api_key=<apiKey>",
+            "https://wombatsinbusinesssuits.com",
             f"https://wombatsinbusinesssuits.com?api_key={_api_key}&file_type=json",
         ),
         (
-            "https://wombatsinbusinesssuits.com/?api_key=<apiKey>",
+            "https://wombatsinbusinesssuits.com/",
             f"https://wombatsinbusinesssuits.com/?api_key={_api_key}&file_type=json",
-        ),
-        (
-            "https://wombatsinbusinesssuits.com?now=withqs&api_key=<apiKey>&params=exclamationpoint",
-            f"https://wombatsinbusinesssuits.com?now=withqs&api_key={_api_key}&params=exclamationpoint&file_type=json",
         ),
     ],
 )
@@ -79,12 +57,12 @@ def test_get_url_defaults_file_type(input, output, monkey_patch_env):
     "input, output",
     [
         (
-            "fred/releases?api_key=<apiKey>&file_type=json",
+            "fred/releases",
             f"https://api.stlouisfed.org/fred/releases?api_key={_api_key}&file_type=json",
         ),
         (
-            "fred/categories?api_key=<apiKey>&file_type=xml",
-            f"https://api.stlouisfed.org/fred/categories?api_key={_api_key}&file_type=xml",
+            "fred/categories",
+            f"https://api.stlouisfed.org/fred/categories?api_key={_api_key}&file_type=json",
         ),
     ],
 )
@@ -93,3 +71,21 @@ def test_get_url_prefixes_relative_paths_with_base_fred_url(
 ):
     monkey_patch_env(_api_key_env_var)
     assert get_url(input) == output
+
+
+def test_get_url_with_specific_query_string_parameters():
+    starting_url = "https://chowdertime.gov"
+    result = get_url(
+        starting_url,
+        {
+            "im": "a lonely parameter",
+            "api_key": "override!",
+            "numeric": 123,
+            "date": date(2024, 2, 28),
+            "empty": None,  # Empty should get filtered out
+        },
+    )
+    assert (
+        result
+        == "https://chowdertime.gov?api_key=override%21&file_type=json&im=a+lonely+parameter&numeric=123&date=2024-02-28"
+    )
