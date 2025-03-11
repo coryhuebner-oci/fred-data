@@ -1,6 +1,6 @@
 from os import path
 import re
-from src.fred_data.config import Config
+from fred_data.config import Config
 
 api_key_placeholder = "<apiKey>"
 

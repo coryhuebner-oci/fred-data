@@ -1,7 +1,7 @@
 from os import path
 from urllib3 import BaseHTTPResponse, PoolManager
 
-from src.fred_data.api.url_builders import get_url
+from fred_data.api.url_builders import get_url
 
 
 class FredApiClient:

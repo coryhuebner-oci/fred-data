@@ -10,12 +10,15 @@ dynamic = ["version"]
 dependencies = [
     "hatchling~=1.27.0",
     "python-dotenv~=1.0.1",
-    "urllib3~=2.3.0"
+    "urllib3~=2.3.0",
+    "polars~=1.24.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "jupyter~=1.1.1",
+    "pandas~=2.2.3", # Installed for DataWrangler VS Code support
+    "pyarrow~=19.0.1", # Installed directly for DataWrangler VS Code support
     "pytest~=8.3.5"
 ]
 
