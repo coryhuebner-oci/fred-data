@@ -22,6 +22,7 @@ def get_release_dates(
     realtime_end: date | None = None,
     limit: int | None = None,
     offset: int | None = None,
+    include_release_dates_with_no_data: bool = False,
 ) -> ReleaseDates:
     release_dates_response = api_client.get(
         "fred/releases/dates",
@@ -30,11 +31,13 @@ def get_release_dates(
             "realtime_end": realtime_end,
             "limit": limit,
             "offset": offset,
+            "include_release_dates_with_no_data": include_release_dates_with_no_data,
         },
     )
     release_dates_json = get_json_on_success(release_dates_response)
     release_dates_df = pl.from_dicts(release_dates_json["release_dates"]).with_columns(
-        pl.col("date").str.to_date()
+        pl.col("date").str.to_date(),
+        pl.col("release_last_updated").str.to_datetime(format="%Y-%m-%d %H:%M:%S%#z"),
     )
     return ReleaseDates(
         realtime_start=date.fromisoformat(release_dates_json["realtime_start"]),

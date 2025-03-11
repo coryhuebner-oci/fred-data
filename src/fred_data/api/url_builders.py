@@ -5,12 +5,14 @@ from urllib.parse import quote_plus
 
 from fred_data.config import Config
 
-QueryStringValue = str | int | date | datetime | None
+QueryStringValue = str | int | date | datetime | bool | None
 
 
 def _stringify_query_string_value(value: QueryStringValue) -> str:
     if isinstance(value, str):
         return value
+    if isinstance(value, bool):
+        return "true" if value else "false"
     if isinstance(value, datetime) or isinstance(value, date):
         return value.isoformat()
     return str(value)
