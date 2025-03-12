@@ -2,10 +2,8 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 
 import polars as pl
-from urllib3 import BaseHTTPResponse
 
-from fred_data.api.fred_api_client import FredApiClient
-from fred_data.api.responses import get_json_on_success
+from fred_data.api import FredApiClient, get_json_on_success, has_all_data_been_loaded
 
 
 @dataclass
@@ -17,18 +15,19 @@ class ReleaseDates:
 
 
 def _combine_release_dates(a: ReleaseDates, b: ReleaseDates) -> ReleaseDates:
+    # There is either an issue with how I'm calling the API or how pagination is working on
+    # the releases/dates endpoint; it appears the limit/offset will continue forever and return
+    # duplicates once past the last data set. For now just cleaning up data using Polars
+    combined_release_dates = pl.concat([a.release_dates, b.release_dates]).unique(
+        subset=["release_id", "date", "release_last_updated"]
+    )
+
     return ReleaseDates(
         realtime_start=min(a.realtime_start, b.realtime_start),
         realtime_end=max(a.realtime_end, b.realtime_end),
-        count=a.count + b.count,
-        release_dates=pl.concat([a.release_dates, b.release_dates]),
+        count=a.count,
+        release_dates=combined_release_dates,
     )
-
-
-def _is_release_response_empty(response: BaseHTTPResponse) -> bool:
-    response_json = response.json()
-    release_dates = response_json["release_dates"]
-    return not release_dates
 
 
 def _validate_release_dates(realtime_start: date, realtime_end: date):
@@ -49,7 +48,7 @@ def get_release_dates(
     all_release_dates: ReleaseDates | None = None
     for release_dates_response in api_client.get_all_pages(
         url="fred/releases/dates",
-        finished=_is_release_response_empty,
+        finished=has_all_data_been_loaded,
         query_string_params={
             "realtime_start": realtime_start,
             "realtime_end": realtime_end,
@@ -61,10 +60,10 @@ def get_release_dates(
         original_release_dates_df = pl.from_dicts(release_dates_json["release_dates"])
         release_dates_df = original_release_dates_df.with_columns(
             pl.col("date").str.to_date(),
-            # pl.col("release_last_updated").str.to_datetime(
-            #     format="%Y-%m-%d %H:%M:%S%#z"
-            # ),
-        )
+            pl.col("release_last_updated").str.to_datetime(
+                format="%Y-%m-%d %H:%M:%S%#z"
+            ),
+        ).sort(["release_name", "date", "release_last_updated"])
         release_dates = ReleaseDates(
             realtime_start=date.fromisoformat(release_dates_json["realtime_start"]),
             realtime_end=date.fromisoformat(release_dates_json["realtime_end"]),

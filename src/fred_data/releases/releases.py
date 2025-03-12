@@ -3,8 +3,7 @@ from datetime import date
 
 import polars as pl
 
-from fred_data.api.fred_api_client import FredApiClient
-from fred_data.api.responses import get_json_on_success
+from fred_data.api import FredApiClient, get_json_on_success
 
 
 @dataclass
