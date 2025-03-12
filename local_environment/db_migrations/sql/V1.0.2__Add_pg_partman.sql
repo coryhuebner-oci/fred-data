@@ -1,0 +1,1 @@
+create extension pg_partman schema partman;

@@ -1,0 +1,31 @@
+services:
+  db:
+    build: ./postgres_with_extensions
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    networks:
+      - fred-data
+  db-migrations:
+    build: ./db_migrations
+    depends_on: [db]
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://${DB_INTERNAL_HOST}:${DB_PORT}/${DB_NAME}
+      - FLYWAY_USER=${POSTGRES_USER}
+      - FLYWAY_PASSWORD=${POSTGRES_PASSWORD}
+      - FLYWAY_PLACEHOLDERS_DBHOST=${DB_INTERNAL_HOST}
+      - FLYWAY_PLACEHOLDERS_DBNAME=${DB_NAME}
+      - FLYWAY_PLACEHOLDERS_MIGRATIONSROOTPATH=/migrations
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+    networks:
+      - fred-data
+
+networks:
+  fred-data:
