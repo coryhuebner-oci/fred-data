@@ -3,7 +3,8 @@ from datetime import date, timedelta
 
 import polars as pl
 
-from fred_data.api import FredApiClient, get_json_on_success, has_all_data_been_loaded
+from fred_data.api import FredApiClient, get_json_on_success
+from fred_data.api.pagination import get_item_counter
 
 
 @dataclass
@@ -15,13 +16,7 @@ class ReleaseDates:
 
 
 def _combine_release_dates(a: ReleaseDates, b: ReleaseDates) -> ReleaseDates:
-    # There is either an issue with how I'm calling the API or how pagination is working on
-    # the releases/dates endpoint; it appears the limit/offset will continue forever and return
-    # duplicates once past the last data set. For now just cleaning up data using Polars
-    combined_release_dates = pl.concat([a.release_dates, b.release_dates]).unique(
-        subset=["release_id", "date", "release_last_updated"]
-    )
-
+    combined_release_dates = pl.concat([a.release_dates, b.release_dates])
     return ReleaseDates(
         realtime_start=min(a.realtime_start, b.realtime_start),
         realtime_end=max(a.realtime_end, b.realtime_end),
@@ -48,7 +43,7 @@ def get_release_dates(
     all_release_dates: ReleaseDates | None = None
     for release_dates_response in api_client.get_all_pages(
         url="fred/releases/dates",
-        finished=has_all_data_been_loaded,
+        current_page_items_counter=get_item_counter("release_dates"),
         query_string_params={
             "realtime_start": realtime_start,
             "realtime_end": realtime_end,

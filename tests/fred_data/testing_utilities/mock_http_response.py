@@ -12,17 +12,15 @@ def create_http_json_response(
     request_method: str = "GET",
 ) -> HTTPResponse:
     """Create a JSON response emulating the response of an HTTP request"""
+    body = json.dumps(body).encode("utf-8")
     headers = {
         "Content-Type": "application/json",
         "Content-Length": str(len(body)),
         **response_headers,
     }
 
-    body = json.dumps(body).encode("utf-8")
-    mock_socket = io.BytesIO(body)
-
     return HTTPResponse(
-        body=mock_socket,
+        body=io.BytesIO(body),
         headers=headers,
         status=status_code,
         version=1.1,
