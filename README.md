@@ -13,6 +13,7 @@ even when run as a container.
 2. Activate that environment: `. .venv/bin/activate`
 3. Install this project and its dependencies: `pip install -e .`
 4. Install development dependencies: `pip install '.[dev]'`
+5. Lastly, setup a .env file or environment variables for secret values; e.g. you'll need a `FRED_API_KEY` value holding your [API key](https://fred.stlouisfed.org/docs/api/api_key.html). You can use the [.env.template](./.env.template) file as a reference.
 
 ## Using the Jupyter Notebook
 Probably the most interesting entry-point is the [exploration notebook](./notebooks/exploration.ipynb). This is where learning about
