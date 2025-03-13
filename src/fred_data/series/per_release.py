@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import date
 from typing import Literal
 
@@ -7,31 +8,35 @@ from fred_data.api.pagination import get_item_counter
 from fred_data.series.transformations import combine_multi_series, get_series_df
 from fred_data.series.types import MultiSeries
 
-SearchType = Literal["full_text", "series_id"]
-SearchRank = Literal["search_rank", "series_id", "title", "last_updated"]
+FilterVariable = Literal["frequency", "units", "seasonal_adjustment"]
 
 
-def get_search_results(
+@dataclass
+class SeriesFilter:
+    variable: FilterVariable
+    value: str
+
+
+def get_series_for_release(
     api_client: FredApiClient,
-    search_text: str,
+    release_id: int,
     *,
     realtime_start: date | None = None,
     realtime_end: date | None = None,
     limit: int | None = None,
-    search_type: SearchType = "full_text",
-    search_rank: SearchRank = "search_rank",
+    series_filter: SeriesFilter | None = None,
 ) -> MultiSeries:
     all_series: MultiSeries | None = None
     for search_response in api_client.get_all_pages(
-        url="fred/series/search",
+        url="fred/release/series",
         current_page_items_counter=get_item_counter("seriess"),
         query_string_params={
-            "search_text": search_text,
+            "release_id": release_id,
             "realtime_start": realtime_start,
             "realtime_end": realtime_end,
             "limit": limit,
-            "search_type": search_type,
-            "search_rank": search_rank,
+            "filter_variable": series_filter.variable if series_filter else None,
+            "filter_value": series_filter.value if series_filter else None,
         },
     ):
         search_response_json = get_json_on_success(search_response)
