@@ -1,3 +1,5 @@
+# A package containing for getting configuration values
+
 from os import getenv
 
 
