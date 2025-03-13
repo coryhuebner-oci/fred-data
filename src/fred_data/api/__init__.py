@@ -1,3 +1,5 @@
+# A package containing generalized modules for calling the FRED API
+
 from fred_data.api.fred_api_client import FredApiClient
 from fred_data.api.url_builders import get_url
 from fred_data.api.responses import get_json_on_success, assert_success
