@@ -24,8 +24,10 @@ notebook
 inspector), you can dive into underlying data for each dataset pulled
 
 ## Spinning up a Local Environment
-A local environment can be spun up that includes a Postgres database with the pg_partman extension installed. This can be useful for
-more complex SQL-based data analysis. To spin up the environment:
+_This idea is a work-in-progress; it was mainly so I could refresh myself on getting pgpartman up-and-running and begin loading FRED data a Postgres
+database for more interesting analysis_
+
+A local environment can be spun up that includes a Postgres database with the pg_partman extension installed. To spin up the environment:
 1. Navigate in a terminal session to the [local_environment](./local_environment/) directory
 2. Run: `podman compose --env-file local.env up --build` to spin up the environment. If you are using `docker` instead of `podman`,
 just replace `podman` with `docker` in that command

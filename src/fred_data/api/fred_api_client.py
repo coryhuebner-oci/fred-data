@@ -1,7 +1,7 @@
 from collections.abc import Callable, Generator
 from urllib3 import BaseHTTPResponse, PoolManager
 
-from fred_data.api.pagination import get_expected_item_count, has_all_data_been_loaded
+from fred_data.api.pagination import get_expected_item_count
 from fred_data.api.pagination_tracker import PaginationTracker
 from fred_data.api.url_builders import get_url
 
