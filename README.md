@@ -21,7 +21,7 @@ how to consume the FRED API is being done. If you go to that notebook, you can:
 1. Run through the setup cells at the top of the notebook. These steps are all in the "Setup" section of the notebook
 2. After running through those cells, you can hit the FRED API in any of the cells in the "Data Exploration" section of the
 notebook
-3. Most of the data exploration cells output a summary of information. Then using the Data Wrangler VS Code plugin (or some other DataFrame
+3. Most of the data exploration cells output a summary of information. Then using [the Data Wrangler VS Code plugin](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.datawrangler) (or some other DataFrame
 inspector), you can dive into underlying data for each dataset pulled
 
 ## Spinning up a Local Environment
